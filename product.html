@@ -242,12 +242,13 @@
   <header>
     <a href="index.html" class="brand-logo">
       <img src="logo.png" alt="Logo">
+    </a>
     <h1 id="header-title">Technical Software Solutions</h1>
     <div class="header-actions">
       
       <!-- Custom Language Selector -->
       <div class="custom-lang-dropdown" id="langDropdown">
-        <button class="lang-dropdown-btn" onclick="toggleLangDropdown(event)">
+        <button type="button" class="lang-dropdown-btn" onclick="toggleLangDropdown(event)">
           <span class="flag-icon" id="current-flag">🇬🇧</span>
           <span id="current-lang-text">English</span>
           <span class="dropdown-arrow">▼</span>
@@ -281,8 +282,8 @@
       <div class="gallery-section">
         <div class="gallery-container">
           <img id="main-preview" class="preview-img" src="" alt="Software Preview" onclick="openLightbox()">
-          <button class="gallery-btn prev" onclick="changeImage(-1)">&lsaquo;</button>
-          <button class="gallery-btn next" onclick="changeImage(1)">&rsaquo;</button>
+          <button type="button" class="gallery-btn prev" onclick="changeImage(-1)">&lsaquo;</button>
+          <button type="button" class="gallery-btn next" onclick="changeImage(1)">&rsaquo;</button>
         </div>
         <div id="gallery-dots" class="gallery-dots"></div>
       </div>
@@ -410,10 +411,10 @@
   </main>
 
   <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-    <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
-    <button class="lightbox-nav prev" onclick="event.stopPropagation(); changeImage(-1);">&lsaquo;</button>
+    <button type="button" class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+    <button type="button" class="lightbox-nav prev" onclick="event.stopPropagation(); changeImage(-1);">&lsaquo;</button>
     <img id="lightbox-img" class="lightbox-img" src="" alt="Enlarged Software Preview">
-    <button class="lightbox-nav next" onclick="event.stopPropagation(); changeImage(1);">&rsaquo;</button>
+    <button type="button" class="lightbox-nav next" onclick="event.stopPropagation(); changeImage(1);">&rsaquo;</button>
   </div>
 
   <footer>
