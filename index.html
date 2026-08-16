@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Software Catalog</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    
+    [dir="rtl"] body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    header { background: var(--primary); color: white; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    .brand-logo img {
+      height: 38px;
+      width: 38px;
+      object-fit: contain;
+    }
+
+    header h1 { font-size: 1.5rem; font-weight: 700; }
+    
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+
+    /* Custom Fancy Language Dropdown */
+    .custom-lang-dropdown {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .lang-dropdown-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      padding: 0.55rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .lang-dropdown-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .dropdown-arrow {
+      font-size: 0.65rem;
+      opacity: 0.7;
+      transition: transform 0.25s ease;
+    }
+
+    .custom-lang-dropdown.open .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .lang-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 6px;
+      width: 160px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+
+    [dir="rtl"] .lang-dropdown-menu {
+      right: auto;
+      left: 0;
+    }
+
+    .custom-lang-dropdown.open .lang-dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .lang-option:hover {
+      background: rgba(37, 99, 235, 0.25);
+      color: #ffffff;
+    }
+
+    .lang-option.active {
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .flag-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .lang-code {
+      margin-left: auto;
+      font-size: 0.7rem;
+      font-weight: 700;
+      opacity: 0.6;
+      letter-spacing: 0.5px;
+    }
+
+    [dir="rtl"] .lang-code {
+      margin-left: 0;
+      margin-right: auto;
+    }
+
+    main { flex: 1; max-width: 1200px; width: 100%; margin: 2.5rem auto; padding: 0 1.5rem; }
+    
+    .hero { text-align: center; margin-bottom: 2rem; }
+    .hero h2 { font-size: 2.2rem; color: var(--primary); margin-bottom: 0.5rem; }
+    .hero p { color: var(--text-muted); font-size: 1.1rem; }
+
+    /* Search Bar Styling */
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto 3rem auto;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.9rem 1.2rem 0.9rem 3rem;
+      font-size: 1rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      background: #ffffff;
+      color: var(--text);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    [dir="rtl"] .search-input {
+      padding: 0.9rem 3rem 0.9rem 1.2rem;
+    }
+
+    [dir="rtl"] .search-icon {
+      left: auto;
+      right: 1rem;
+    }
+
+    .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+
+    .card { 
+      background: var(--card-bg); 
+      border-radius: 12px; 
+      overflow: hidden; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+      display: flex; 
+      flex-direction: column; 
+      transition: transform 0.2s ease, box-shadow 0.2s ease; 
+      text-decoration: none; 
+      color: inherit; 
+      cursor: pointer; 
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+    .card-img-container { height: 200px; width: 100%; background: #000; overflow: hidden; position: relative; }
+    .card-img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s ease; }
+    .card:hover .card-img { opacity: 0.9; }
+
+    .card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .tag { display: inline-block; background: #eff6ff; color: #1d4ed8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 4px; align-self: flex-start; margin-bottom: 0.75rem; }
+    .card-title { font-size: 1.25rem; color: var(--primary); margin-bottom: 0.5rem; font-weight: 700; }
+    .card-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem; flex: 1; }
+
+    .btn { display: block; width: 100%; background: var(--accent); color: white; text-align: center; padding: 0.75rem; border-radius: 8px; font-weight: 600; transition: background 0.2s ease; }
+    .card:hover .btn { background: var(--accent-hover); }
+
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    footer { background: var(--primary); color: #94a3b8; text-align: center; padding: 2rem 1.5rem; margin-top: 3rem; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="brand-logo">
+      <img src="logo.png" alt="Logo">
+      <h1 id="header-title">Technical Software Solutions</h1>
+    </a>
+    <div class="header-actions">
+      <div class="custom-lang-dropdown" id="langDropdown">
+        <button class="lang-dropdown-btn" onclick="toggleLangDropdown(event)">
+          <span class="flag-icon" id="current-flag">🇬🇧</span>
+          <span id="current-lang-text">English</span>
+          <span class="dropdown-arrow">▼</span>
+        </button>
+        <div class="lang-dropdown-menu" id="langMenu">
+          <div class="lang-option" id="opt-en" onclick="selectLanguage('en', '🇬🇧', 'English')">
+            <span class="flag-icon">🇬🇧</span>
+            <span>English</span>
+            <span class="lang-code">GB</span>
+          </div>
+          <div class="lang-option" id="opt-fr" onclick="selectLanguage('fr', '🇫🇷', 'Français')">
+            <span class="flag-icon">🇫🇷</span>
+            <span>Français</span>
+            <span class="lang-code">FR</span>
+          </div>
+          <div class="lang-option" id="opt-ar" onclick="selectLanguage('ar', '🇩🇿', 'العربية')">
+            <span class="flag-icon">🇩🇿</span>
+            <span>العربية</span>
+            <span class="lang-code">DZ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2 id="hero-title">Software & Installation Services</h2>
+      <p id="hero-subtitle">Select a package below to view details and submit an order request</p>
+    </section>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search software by name or category..." oninput="renderCatalog()">
+    </div>
+
+    <div class="catalog-grid" id="catalog-grid">
+      <!-- Dynamic Catalog Cards -->
+    </div>
+  </main>
+
+  <footer>
+    <p id="footer-text">&copy; 2026 CAD & Technical Solutions. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const translations = {
+      en: {
+        headerTitle: "Technical Software Solutions",
+        heroTitle: "Software & Installation Services",
+        heroSubtitle: "Select a package below to view details and submit an order request",
+        searchPlaceholder: "Search software by name or category...",
+        viewDetails: "View Details & Order",
+        noResults: "No software found matching your search.",
+        footerText: "© 2026 CAD & Technical Solutions. All rights reserved."
+      },
+      fr: {
+        headerTitle: "Solutions Logicielles Techniques",
+        heroTitle: "Services de Logiciels et d'Installation",
+        heroSubtitle: "Sélectionnez un package ci-dessous pour voir les détails et passer commande",
+        searchPlaceholder: "Rechercher un logiciel par nom ou catégorie...",
+        viewDetails: "Voir les détails et commander",
+        noResults: "Aucun logiciel trouvé correspondant à votre recherche.",
+        footerText: "© 2026 CAD & Technical Solutions. Tous droits réservés."
+      },
+      ar: {
+        headerTitle: "حلول البرمجيات التقنية",
+        heroTitle: "خدمات البرمجيات والتثبيت",
+        heroSubtitle: "اختر أحد البرامج أدناه لعرض التفاصيل وإرسال طلب طلبية",
+        searchPlaceholder: "ابحث عن البرنامج بالاسم أو الفئة...",
+        viewDetails: "عرض التفاصيل والطلب",
+        noResults: "لم يتم العثور على أي برمجية تطابق بحثك.",
+        footerText: "© 2026 CAD & Technical Solutions. جميع الحقوق محفوظة."
+      }
+    };
+
+    const langData = {
+      en: { flag: "🇬🇧", text: "English" },
+      fr: { flag: "🇫🇷", text: "Français" },
+      ar: { flag: "🇩🇿", text: "العربية" }
+    };
+
+    const products = [
+      {
+        id: "exocad33",
+        title: "exocad 3.3 DentalCAD",
+        tag: "Dental CAD",
+        image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
+        description: {
+          en: "Full suite installation with custom dental library integration and remote backup configuration.",
+          fr: "Installation complète de la suite avec intégration de bibliothèques dentaires et sauvegarde à distance.",
+          ar: "تثبيت البرنامج الكامل مع دمج مكتبات الأسنان المخصصة وإعداد النسخ الاحتياطي عن بُعد."
+        }
+      },
+      {
+        id: "partialcad33",
+        title: "PartialCAD 3.3",
+        tag: "Dental CAD",
+        image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
+        description: {
+          en: "Partial framework design module setup with full system and driver verification.",
+          fr: "Configuration du module de conception de châssis partiels avec vérification du système.",
+          ar: "إعداد وحدة تصميم الهياكل الجزئية مع التحقق الكامل من النظام وبرامج التشغيل."
+        }
+      },
+      {
+        id: "realguide",
+        title: "RealGUIDE Suite",
+        tag: "Implantology",
+        image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80",
+        description: {
+          en: "Surgical guide planning software setup including DICOM module support.",
+          fr: "Configuration du logiciel de planification de guides chirurgicaux avec support DICOM.",
+          ar: "إعداد برنامج تخطيط الأدلة الجراحية مع دعم وحدة DICOM."
+        }
+      },
+      {
+        id: "kitchendraw",
+        title: "KitchenDraw v8 & v10",
+        tag: "Interior Design",
+        image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80",
+        description: {
+          en: "Complete catalog installation, space.ini tuning, and high-quality 3D rendering setup.",
+          fr: "Installation complète des catalogues, réglage de space.ini et rendu 3D haute qualité.",
+          ar: "تثبيت الكتالوجات الكاملة، ضبط ملف space.ini، وإعداد العرض ثلاثي الأبعاد عالي الجودة."
+        }
+      }
+    ];
+
+    let currentLang = localStorage.getItem('appLang') || 'en';
+
+    function toggleLangDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('langDropdown').classList.toggle('open');
+    }
+
+    function selectLanguage(lang, flag, text) {
+      document.getElementById('current-flag').innerText = flag;
+      document.getElementById('current-lang-text').innerText = text;
+
+      document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
+      const activeOpt = document.getElementById(`opt-${lang}`);
+      if (activeOpt) activeOpt.classList.add('active');
+
+      document.getElementById('langDropdown').classList.remove('open');
+      changeLanguage(lang);
+    }
+
+    document.addEventListener('click', () => {
+      const dropdown = document.getElementById('langDropdown');
+      if (dropdown) dropdown.classList.remove('open');
+    });
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('appLang', lang);
+      
+      const t = translations[lang];
+      const isRtl = lang === 'ar';
+      
+      document.documentElement.lang = lang;
+      document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+
+      // UI Text
+      document.getElementById('header-title').innerText = t.headerTitle;
+      document.getElementById('hero-title').innerText = t.heroTitle;
+      document.getElementById('hero-subtitle').innerText = t.heroSubtitle;
+      document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+      document.getElementById('footer-text').innerText = t.footerText;
+      document.title = `${t.headerTitle} - Catalog`;
+
+      renderCatalog();
+    }
+
+    function renderCatalog() {
+      const grid = document.getElementById('catalog-grid');
+      const t = translations[currentLang];
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      // Filter products based on search query matching title, tag, or description
+      const filteredProducts = products.filter(p => {
+        const titleMatch = p.title.toLowerCase().includes(query);
+        const tagMatch = p.tag.toLowerCase().includes(query);
+        const descMatch = (p.description[currentLang] || p.description.en).toLowerCase().includes(query);
+        return titleMatch || tagMatch || descMatch;
+      });
+
+      if (filteredProducts.length === 0) {
+        grid.innerHTML = `<div class="no-results">${t.noResults}</div>`;
+        return;
+      }
+
+      grid.innerHTML = filteredProducts.map(p => `
+        <a href="product.html?id=${p.id}" class="card">
+          <div class="card-img-container">
+            <img class="card-img" src="${p.image}" alt="${p.title}">
+          </div>
+          <div class="card-body">
+            <span class="tag">${p.tag}</span>
+            <h3 class="card-title">${p.title}</h3>
+            <p class="card-desc">${p.description[currentLang] || p.description.en}</p>
+            <span class="btn">${t.viewDetails}</span>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    // Initialize UI on Load
+    if (langData[currentLang]) {
+      document.getElementById('current-flag').innerText = langData[currentLang].flag;
+      document.getElementById('current-lang-text').innerText = langData[currentLang].text;
+      const activeOpt = document.getElementById(`opt-${currentLang}`);
+      if (activeOpt) activeOpt.classList.add('active');
+    }
+
+    changeLanguage(currentLang);
+  </script>
+</body>
+</html>

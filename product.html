@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Software Details & Request Setup</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Dynamic RTL Support */
+    [dir="rtl"] body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    header { background: var(--primary); color: white; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    header h1 { font-size: 1.3rem; font-weight: 700; }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    .brand-logo img {
+      height: 38px;
+      width: 38px;
+      object-fit: contain;
+    }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    
+    /* Custom Fancy Language Dropdown */
+    .custom-lang-dropdown {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .lang-dropdown-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      padding: 0.55rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .lang-dropdown-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .dropdown-arrow {
+      font-size: 0.65rem;
+      opacity: 0.7;
+      transition: transform 0.25s ease;
+    }
+
+    .custom-lang-dropdown.open .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .lang-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 6px;
+      width: 160px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+
+    [dir="rtl"] .lang-dropdown-menu {
+      right: auto;
+      left: 0;
+    }
+
+    .custom-lang-dropdown.open .lang-dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .lang-option:hover {
+      background: rgba(37, 99, 235, 0.25);
+      color: #ffffff;
+    }
+
+    .lang-option.active {
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .flag-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .lang-code {
+      margin-left: auto;
+      font-size: 0.7rem;
+      font-weight: 700;
+      opacity: 0.6;
+      letter-spacing: 0.5px;
+    }
+
+    [dir="rtl"] .lang-code {
+      margin-left: 0;
+      margin-right: auto;
+    }
+
+    .back-btn { 
+      color: white; 
+      text-decoration: none; 
+      font-weight: 600; 
+      background: rgba(255,255,255,0.1); 
+      padding: 0.55rem 1rem; 
+      border-radius: 10px; 
+      border: 1px solid rgba(255,255,255,0.2);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s; 
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+    main { flex: 1; max-width: 1200px; width: 100%; margin: 2.5rem auto; padding: 0 1.5rem; }
+    
+    .product-container { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; background: var(--card-bg); padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); align-items: center; }
+    @media (max-width: 900px) { .product-container { grid-template-columns: 1fr; gap: 2rem; padding: 1.5rem; } }
+
+    .gallery-section { display: flex; flex-direction: column; gap: 1rem; justify-content: center; width: 100%; }
+    .gallery-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; height: 420px; display: flex; align-items: center; justify-content: center; }
+    
+    .preview-img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; transition: opacity 0.2s; }
+    .preview-img:hover { opacity: 0.95; }
+    
+    .gallery-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(15,23,42,0.7); color: white; border: none; padding: 0.75rem 1rem; cursor: pointer; font-weight: bold; border-radius: 6px; z-index: 2; }
+    .gallery-btn.prev { left: 12px; }
+    .gallery-btn.next { right: 12px; }
+    [dir="rtl"] .gallery-btn.prev { left: auto; right: 12px; }
+    [dir="rtl"] .gallery-btn.next { right: auto; left: 12px; }
+
+    .gallery-dots { text-align: center; margin-top: 0.5rem; }
+    .dot { display: inline-block; height: 10px; width: 10px; background-color: #cbd5e1; border-radius: 50%; margin: 0 5px; cursor: pointer; transition: background 0.2s; }
+    .dot.active { background-color: var(--accent); width: 20px; border-radius: 5px; }
+
+    .details-section h2 { font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; }
+    .tag { display: inline-block; background: #eff6ff; color: #1d4ed8; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; padding: 0.35rem 0.75rem; border-radius: 4px; margin-bottom: 1rem; }
+    .description { color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.5rem; }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--primary); }
+    .form-group input, .form-group select, .form-group textarea { 
+      width: 100%; 
+      padding: 0.8rem 1rem; 
+      border: 1px solid #cbd5e1; 
+      border-radius: 8px; 
+      font-size: 1rem; 
+      font-family: inherit; 
+      outline: none;
+      background-color: #fff;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input.input-error, .form-group select.input-error, .form-group textarea.input-error {
+      border: 2px solid #dc2626 !important;
+      box-shadow: 0 0 0 1px #dc2626;
+    }
+    
+    .quantity-control { display: flex; align-items: center; gap: 0.5rem; width: 140px; }
+    .qty-btn { width: 40px; height: 40px; border: 1px solid #cbd5e1; background: #f1f5f9; font-weight: bold; font-size: 1.2rem; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .qty-btn:hover { background: #e2e8f0; }
+    .qty-input { text-align: center; font-weight: bold; margin: 0; padding: 0.5rem !important; }
+
+    .btn { display: inline-block; width: 100%; background: var(--accent); color: white; text-align: center; padding: 0.9rem; border-radius: 8px; font-weight: 600; font-size: 1.05rem; cursor: pointer; border: none; transition: background 0.2s; margin-top: 1rem; }
+    .btn:hover { background: var(--accent-hover); }
+
+    .status-msg { display: none; text-align: center; padding: 1rem; border-radius: 8px; margin-top: 1rem; font-size: 0.95rem; font-weight: 600; }
+    .status-msg.success { display: block; background: #dcfce7; color: #166534; }
+    .status-msg.error { display: block; background: #fee2e2; color: #991b1b; }
+
+    /* Lightbox Modal */
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; padding: 2rem; }
+    .lightbox.active { display: flex; }
+    .lightbox-img { max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .lightbox-close { position: absolute; top: 1.5rem; right: 2rem; color: white; font-size: 2.5rem; font-weight: bold; cursor: pointer; background: none; border: none; line-height: 1; }
+    [dir="rtl"] .lightbox-close { right: auto; left: 2rem; }
+    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); color: white; border: none; font-size: 2rem; padding: 0.5rem 1rem; cursor: pointer; border-radius: 6px; transition: background 0.2s; }
+    .lightbox-nav:hover { background: rgba(255,255,255,0.3); }
+    .lightbox-nav.prev { left: 1.5rem; }
+    .lightbox-nav.next { right: 1.5rem; }
+    [dir="rtl"] .lightbox-nav.prev { left: auto; right: 1.5rem; }
+    [dir="rtl"] .lightbox-nav.next { right: auto; left: 1.5rem; }
+
+    footer { background: var(--primary); color: #94a3b8; text-align: center; padding: 2rem 1.5rem; margin-top: auto; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="brand-logo">
+      <img src="logo.png" alt="Logo">
+    <h1 id="header-title">Technical Software Solutions</h1>
+    <div class="header-actions">
+      
+      <!-- Custom Language Selector -->
+      <div class="custom-lang-dropdown" id="langDropdown">
+        <button class="lang-dropdown-btn" onclick="toggleLangDropdown(event)">
+          <span class="flag-icon" id="current-flag">🇬🇧</span>
+          <span id="current-lang-text">English</span>
+          <span class="dropdown-arrow">▼</span>
+        </button>
+        <div class="lang-dropdown-menu" id="langMenu">
+          <div class="lang-option" id="opt-en" onclick="selectLanguage('en', '🇬🇧', 'English')">
+            <span class="flag-icon">🇬🇧</span>
+            <span>English</span>
+            <span class="lang-code">GB</span>
+          </div>
+          <div class="lang-option" id="opt-fr" onclick="selectLanguage('fr', '🇫🇷', 'Français')">
+            <span class="flag-icon">🇫🇷</span>
+            <span>Français</span>
+            <span class="lang-code">FR</span>
+          </div>
+          <div class="lang-option" id="opt-ar" onclick="selectLanguage('ar', '🇩🇿', 'العربية')">
+            <span class="flag-icon">🇩🇿</span>
+            <span>العربية</span>
+            <span class="lang-code">DZ</span>
+          </div>
+        </div>
+      </div>
+
+      <a href="index.html" class="back-btn" id="back-btn">&larr; Back to Catalog</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="product-container">
+      
+      <div class="gallery-section">
+        <div class="gallery-container">
+          <img id="main-preview" class="preview-img" src="" alt="Software Preview" onclick="openLightbox()">
+          <button class="gallery-btn prev" onclick="changeImage(-1)">&lsaquo;</button>
+          <button class="gallery-btn next" onclick="changeImage(1)">&rsaquo;</button>
+        </div>
+        <div id="gallery-dots" class="gallery-dots"></div>
+      </div>
+
+      <div class="details-section">
+        <span class="tag" id="product-tag">Category</span>
+        <h2 id="product-title">Loading Software...</h2>
+        <p class="description" id="product-desc"></p>
+
+        <form id="custom-order-form" novalidate>
+          <input type="hidden" id="selected-software" name="Software">
+
+          <div class="form-group">
+            <label id="label-qty">Number of Copies / Licenses</label>
+            <div class="quantity-control">
+              <button type="button" class="qty-btn" onclick="adjustQty(-1)">-</button>
+              <input type="number" id="quantity" name="Quantity" class="qty-input" value="1" min="1" max="10" readonly>
+              <button type="button" class="qty-btn" onclick="adjustQty(1)">+</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="fullName" id="label-fullname">Full Name / Lab Name</label>
+            <input type="text" id="fullName" name="FullName" required placeholder="e.g. John Doe / Apex Dental Lab">
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumber" id="label-phone">Phone Number (WhatsApp)</label>
+            <input type="tel" id="phoneNumber" name="PhoneNumber" required placeholder="e.g. +213 550 00 00 00">
+          </div>
+
+          <div class="form-group">
+            <label for="wilaya" id="label-wilaya">Wilaya</label>
+            <select id="wilaya" name="Wilaya" required>
+              <option value="" disabled selected id="opt-wilaya-default">Select Wilaya</option>
+              <option value="01 - Adrar">01 - Adrar</option>
+              <option value="02 - Chlef">02 - Chlef</option>
+              <option value="03 - Laghouat">03 - Laghouat</option>
+              <option value="04 - Oum El Bouaghi">04 - Oum El Bouaghi</option>
+              <option value="05 - Batna">05 - Batna</option>
+              <option value="06 - Béjaïa">06 - Béjaïa</option>
+              <option value="07 - Biskra">07 - Biskra</option>
+              <option value="08 - Béchar">08 - Béchar</option>
+              <option value="09 - Blida">09 - Blida</option>
+              <option value="10 - Bouira">10 - Bouira</option>
+              <option value="11 - Tamanrasset">11 - Tamanrasset</option>
+              <option value="12 - Tébessa">12 - Tébessa</option>
+              <option value="13 - Tlemcen">13 - Tlemcen</option>
+              <option value="14 - Tiaret">14 - Tiaret</option>
+              <option value="15 - Tizi Ouzou">15 - Tizi Ouzou</option>
+              <option value="16 - Alger">16 - Alger</option>
+              <option value="17 - Djelfa">17 - Djelfa</option>
+              <option value="18 - Jijel">18 - Jijel</option>
+              <option value="19 - Sétif">19 - Sétif</option>
+              <option value="20 - Saïda">20 - Saïda</option>
+              <option value="21 - Skikda">21 - Skikda</option>
+              <option value="22 - Sidi Bel Abbès">22 - Sidi Bel Abbès</option>
+              <option value="23 - Annaba">23 - Annaba</option>
+              <option value="24 - Guelma">24 - Guelma</option>
+              <option value="25 - Constantine">25 - Constantine</option>
+              <option value="26 - Médéa">26 - Médéa</option>
+              <option value="27 - Mostaganem">27 - Mostaganem</option>
+              <option value="28 - M'Sila">28 - M'Sila</option>
+              <option value="29 - Mascara">29 - Mascara</option>
+              <option value="30 - Ouargla">30 - Ouargla</option>
+              <option value="31 - Oran">31 - Oran</option>
+              <option value="32 - El Bayadh">32 - El Bayadh</option>
+              <option value="33 - Illizi">33 - Illizi</option>
+              <option value="34 - Bordj Bou Arréridj">34 - Bordj Bou Arréridj</option>
+              <option value="35 - Boumerdès">35 - Boumerdès</option>
+              <option value="36 - El Tarf">36 - El Tarf</option>
+              <option value="37 - Tindouf">37 - Tindouf</option>
+              <option value="38 - Tissemsilt">38 - Tissemsilt</option>
+              <option value="39 - El Oued">39 - El Oued</option>
+              <option value="40 - Khenchela">40 - Khenchela</option>
+              <option value="41 - Souk Ahras">41 - Souk Ahras</option>
+              <option value="42 - Tipaza">42 - Tipaza</option>
+              <option value="43 - Mila">43 - Mila</option>
+              <option value="44 - Aïn Defla">44 - Aïn Defla</option>
+              <option value="45 - Naâma">45 - Naâma</option>
+              <option value="46 - Aïn Témouchent">46 - Aïn Témouchent</option>
+              <option value="47 - Ghardaïa">47 - Ghardaïa</option>
+              <option value="48 - Relizane">48 - Relizane</option>
+              <option value="49 - Timimoun">49 - Timimoun</option>
+              <option value="50 - Bordj Badji Mokhtar">50 - Bordj Badji Mokhtar</option>
+              <option value="51 - Ouled Djellal">51 - Ouled Djellal</option>
+              <option value="52 - Béni Abbès">52 - Béni Abbès</option>
+              <option value="53 - In Salah">53 - In Salah</option>
+              <option value="54 - In Guezzam">54 - In Guezzam</option>
+              <option value="55 - Touggourt">55 - Touggourt</option>
+              <option value="56 - Djanet">56 - Djanet</option>
+              <option value="57 - El M'Ghair">57 - El M'Ghair</option>
+              <option value="58 - El Meniaa">58 - El Meniaa</option>
+              <option value="59 - Aflou">59 - Aflou</option>
+              <option value="60 - El Abiodh Sidi Cheikh">60 - El Abiodh Sidi Cheikh</option>
+              <option value="61 - El Aricha">61 - El Aricha</option>
+              <option value="62 - El Kantara">62 - El Kantara</option>
+              <option value="63 - Barika">63 - Barika</option>
+              <option value="64 - Bou Saâda">64 - Bou Saâda</option>
+              <option value="65 - Bir El Ater">65 - Bir El Ater</option>
+              <option value="66 - Ksar El Boukhari">66 - Ksar El Boukhari</option>
+              <option value="67 - Ksar Chellala">67 - Ksar Chellala</option>
+              <option value="68 - Aïn Oussera">68 - Aïn Oussera</option>
+              <option value="69 - Messaad">69 - Messaad</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="address" id="label-address">Full Address</label>
+            <input type="text" id="address" name="Address" required placeholder="e.g. Boulevard Mohamed V, City Center">
+          </div>
+
+          <div class="form-group">
+            <label for="notes" id="label-notes">Additional Requirements / System Info (Optional)</label>
+            <textarea id="notes" name="Notes" rows="3" placeholder="Specify preferred language, modules needed, etc."></textarea>
+          </div>
+
+          <button type="submit" class="btn" id="submit-btn">Submit Order Request</button>
+        </form>
+
+        <div id="form-status" class="status-msg"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+    <button class="lightbox-nav prev" onclick="event.stopPropagation(); changeImage(-1);">&lsaquo;</button>
+    <img id="lightbox-img" class="lightbox-img" src="" alt="Enlarged Software Preview">
+    <button class="lightbox-nav next" onclick="event.stopPropagation(); changeImage(1);">&rsaquo;</button>
+  </div>
+
+  <footer>
+    <p id="footer-text">&copy; 2026 CAD & Technical Solutions. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const translations = {
+      en: {
+        headerTitle: "Technical Software Solutions",
+        backBtn: "← Back to Catalog",
+        labelQty: "Number of Copies / Licenses",
+        labelFullname: "Full Name / Lab Name",
+        placeholderFullname: "e.g. John Doe / Apex Dental Lab",
+        labelPhone: "Phone Number (WhatsApp)",
+        placeholderPhone: "e.g. +213 550 00 00 00",
+        labelWilaya: "Wilaya",
+        defaultWilaya: "Select Wilaya",
+        labelAddress: "Full Address",
+        placeholderAddress: "e.g. Boulevard Mohamed V, City Center",
+        labelNotes: "Additional Requirements / System Info (Optional)",
+        placeholderNotes: "Specify preferred language, modules needed, etc.",
+        submitBtn: "Submit Order Request",
+        sendingBtn: "Sending...",
+        successMsg: "Order submitted successfully! We will contact you shortly.",
+        errorMsg: "Error submitting order. Please try again.",
+        footerText: "© 2026 CAD & Technical Solutions. All rights reserved."
+      },
+      fr: {
+        headerTitle: "Solutions Logicielles Techniques",
+        backBtn: "← Retour au catalogue",
+        labelQty: "Nombre de copies / Licences",
+        labelFullname: "Nom complet / Nom du laboratoire",
+        placeholderFullname: "ex. Jean Dupont / Labo Dentaire Apex",
+        labelPhone: "Numéro de téléphone (WhatsApp)",
+        placeholderPhone: "ex. +213 550 00 00 00",
+        labelWilaya: "Wilaya",
+        defaultWilaya: "Sélectionner la wilaya",
+        labelAddress: "Adresse complète",
+        placeholderAddress: "ex. Boulevard Mohamed V, Centre-ville",
+        labelNotes: "Besoins supplémentaires / Info système (Optionnel)",
+        placeholderNotes: "Préciser la langue souhaitée, les modules, etc.",
+        submitBtn: "Envoyer la commande",
+        sendingBtn: "Envoi en cours...",
+        successMsg: "Commande envoyée avec succès ! Nous vous contacterons sous peu.",
+        errorMsg: "Erreur lors de l'envoi. Veuillez réessayer.",
+        footerText: "© 2026 CAD & Technical Solutions. Tous droits réservés."
+      },
+      ar: {
+        headerTitle: "حلول البرمجيات التقنية",
+        backBtn: "الرجوع إلى الكتالوج ←",
+        labelQty: "عدد النسخ / التراخيص",
+        labelFullname: "الاسم الكامل / اسم المختبر",
+        placeholderFullname: "مثال: أحمد محمد / مخبر الأمل للأسنان",
+        labelPhone: "رقم الهاتف (واتساب)",
+        placeholderPhone: "مثال: 00 00 550 213+",
+        labelWilaya: "الولاية",
+        defaultWilaya: "اختر الولاية",
+        labelAddress: "العنوان الكامل",
+        placeholderAddress: "مثال: شارع محمد الخامس، وسط المدينة",
+        labelNotes: "متطلبات إضافية / معلومات النظام (اختياري)",
+        placeholderNotes: "حدد اللغة المفضلة، الوحدات المطلوبة، إلخ.",
+        submitBtn: "إرسال طلب الطلبية",
+        sendingBtn: "جاري الإرسال...",
+        successMsg: "تم إرسال طلبك بنجاح! سنتصل بك قريباً.",
+        errorMsg: "حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.",
+        footerText: "© 2026 CAD & Technical Solutions. جميع الحقوق محفوظة."
+      }
+    };
+
+    const langData = {
+      en: { flag: "🇬🇧", text: "English" },
+      fr: { flag: "🇫🇷", text: "Français" },
+      ar: { flag: "🇩🇿", text: "العربية" }
+    };
+
+    const products = [
+      {
+        id: "exocad33",
+        title: "exocad 3.3 DentalCAD",
+        tag: "Dental CAD",
+        images: [
+          "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1200&q=80",
+          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1200&q=80"
+        ],
+        description: {
+          en: "Full suite installation with custom dental library integration and remote backup configuration.",
+          fr: "Installation complète de la suite avec intégration de bibliothèques dentaires et sauvegarde à distance.",
+          ar: "تثبيت البرنامج الكامل مع دمج مكتبات الأسنان المخصصة وإعداد النسخ الاحتياطي عن بُعد."
+        }
+      },
+      {
+        id: "partialcad33",
+        title: "PartialCAD 3.3",
+        tag: "Dental CAD",
+        images: [
+          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1200&q=80",
+          "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80"
+        ],
+        description: {
+          en: "Partial framework design module setup with full system and driver verification.",
+          fr: "Configuration du module de conception de châssis partiels avec vérification du système.",
+          ar: "إعداد وحدة تصميم الهياكل الجزئية مع التحقق الكامل من النظام وبرامج التشغيل."
+        }
+      },
+      {
+        id: "realguide",
+        title: "RealGUIDE Suite",
+        tag: "Implantology",
+        images: [
+          "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80",
+          "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1200&q=80"
+        ],
+        description: {
+          en: "Surgical guide planning software setup including DICOM module support.",
+          fr: "Configuration du logiciel de planification de guides chirurgicaux avec support DICOM.",
+          ar: "إعداد برنامج تخطيط الأدلة الجراحية مع دعم وحدة DICOM."
+        }
+      },
+      {
+        id: "kitchendraw",
+        title: "KitchenDraw v8 & v10",
+        tag: "Interior Design",
+        images: [
+          "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80",
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+        ],
+        description: {
+          en: "Complete catalog installation, space.ini tuning, and high-quality 3D rendering setup.",
+          fr: "Installation complète des catalogues, réglage de space.ini et rendu 3D haute qualité.",
+          ar: "تثبيت الكتالوجات الكاملة، ضبط ملف space.ini، وإعداد العرض ثلاثي الأبعاد عالي الجودة."
+        }
+      }
+    ];
+
+    let currentLang = localStorage.getItem('appLang') || 'en';
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id') || 'exocad33';
+    const product = products.find(p => p.id === productId) || products[0];
+
+    let currentProductImages = product.images;
+    let currentImageIndex = 0;
+
+    function toggleLangDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('langDropdown').classList.toggle('open');
+    }
+
+    function selectLanguage(lang, flag, text) {
+      document.getElementById('current-flag').innerText = flag;
+      document.getElementById('current-lang-text').innerText = text;
+
+      document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
+      const activeOpt = document.getElementById(`opt-${lang}`);
+      if (activeOpt) activeOpt.classList.add('active');
+
+      document.getElementById('langDropdown').classList.remove('open');
+      changeLanguage(lang);
+    }
+
+    document.addEventListener('click', () => {
+      const dropdown = document.getElementById('langDropdown');
+      if (dropdown) dropdown.classList.remove('open');
+    });
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('appLang', lang);
+      
+      const t = translations[lang];
+      const isRtl = lang === 'ar';
+      
+      document.documentElement.lang = lang;
+      document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+
+      // UI Translations
+      document.getElementById('header-title').innerText = t.headerTitle;
+      document.getElementById('back-btn').innerText = t.backBtn;
+      document.getElementById('label-qty').innerText = t.labelQty;
+      
+      document.getElementById('label-fullname').innerText = t.labelFullname;
+      document.getElementById('fullName').placeholder = t.placeholderFullname;
+      
+      document.getElementById('label-phone').innerText = t.labelPhone;
+      document.getElementById('phoneNumber').placeholder = t.placeholderPhone;
+      
+      document.getElementById('label-wilaya').innerText = t.labelWilaya;
+      document.getElementById('opt-wilaya-default').innerText = t.defaultWilaya;
+      
+      document.getElementById('label-address').innerText = t.labelAddress;
+      document.getElementById('address').placeholder = t.placeholderAddress;
+      
+      document.getElementById('label-notes').innerText = t.labelNotes;
+      document.getElementById('notes').placeholder = t.placeholderNotes;
+      
+      document.getElementById('submit-btn').innerText = t.submitBtn;
+      document.getElementById('footer-text').innerText = t.footerText;
+
+      // Product Details Translation
+      document.getElementById('product-title').innerText = product.title;
+      document.getElementById('product-tag').innerText = product.tag;
+      document.getElementById('product-desc').innerText = product.description[lang] || product.description.en;
+      document.getElementById('selected-software').value = product.title;
+      document.title = `${product.title} - ${t.headerTitle}`;
+    }
+
+    function updateGallery() {
+      const currentUrl = currentProductImages[currentImageIndex];
+      document.getElementById('main-preview').src = currentUrl;
+      document.getElementById('lightbox-img').src = currentUrl;
+
+      const dotsContainer = document.getElementById('gallery-dots');
+      dotsContainer.innerHTML = currentProductImages.map((_, i) => 
+        `<span class="dot ${i === currentImageIndex ? 'active' : ''}" onclick="setImage(${i})"></span>`
+      ).join('');
+    }
+
+    function changeImage(direction) {
+      currentImageIndex = (currentImageIndex + direction + currentProductImages.length) % currentProductImages.length;
+      updateGallery();
+    }
+
+    function setImage(index) {
+      currentImageIndex = index;
+      updateGallery();
+    }
+
+    function openLightbox() {
+      document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeLightbox(e) {
+      if (e.target.classList.contains('lightbox') || e.target.classList.contains('lightbox-close')) {
+        document.getElementById('lightbox').classList.remove('active');
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const lightbox = document.getElementById('lightbox');
+      if (lightbox.classList.contains('active')) {
+        if (e.key === 'Escape') lightbox.classList.remove('active');
+        if (e.key === 'ArrowLeft') changeImage(-1);
+        if (e.key === 'ArrowRight') changeImage(1);
+      }
+    });
+
+    function adjustQty(amount) {
+      const input = document.getElementById('quantity');
+      let val = parseInt(input.value) + amount;
+      if (val >= 1 && val <= 10) input.value = val;
+    }
+
+    // Initialize Page
+    if (langData[currentLang]) {
+      document.getElementById('current-flag').innerText = langData[currentLang].flag;
+      document.getElementById('current-lang-text').innerText = langData[currentLang].text;
+      const activeOpt = document.getElementById(`opt-${currentLang}`);
+      if (activeOpt) activeOpt.classList.add('active');
+    }
+
+    changeLanguage(currentLang);
+    updateGallery();
+
+    const form = document.getElementById('custom-order-form');
+    const phoneInput = document.getElementById('phoneNumber');
+    const requiredInputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+
+    phoneInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/[^\d\s\+\-]/g, '');
+    });
+
+    requiredInputs.forEach(input => {
+      input.addEventListener('input', () => {
+        if (input.value.trim() !== '') input.classList.remove('input-error');
+      });
+      if (input.tagName === 'SELECT') {
+        input.addEventListener('change', () => {
+          if (input.value !== '') input.classList.remove('input-error');
+        });
+      }
+    });
+
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbx0aZOVWvtnwsfzLP2Gfa-acgn7Wf1qJsdP-5j3T2Wbil8Tpg36YK6Q2rpcWlZYYf3R/exec';
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      
+      let isValid = true;
+      requiredInputs.forEach(input => {
+        if (!input.value || !input.value.trim()) {
+          input.classList.add('input-error');
+          isValid = false;
+        } else {
+          input.classList.remove('input-error');
+        }
+      });
+
+      if (!isValid) {
+        const firstError = form.querySelector('.input-error');
+        if (firstError) firstError.focus();
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      const statusMsg = document.getElementById('form-status');
+      const t = translations[currentLang];
+      
+      submitBtn.innerText = t.sendingBtn;
+      submitBtn.disabled = true;
+
+      const formData = new URLSearchParams(new FormData(form));
+
+      fetch(scriptURL, { 
+        method: 'POST', 
+        body: formData,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+      .then(response => {
+        submitBtn.innerText = t.submitBtn;
+        submitBtn.disabled = false;
+        form.reset();
+        form.style.display = 'none';
+        statusMsg.innerText = t.successMsg;
+        statusMsg.className = 'status-msg success';
+      })
+      .catch(error => {
+        submitBtn.innerText = t.submitBtn;
+        submitBtn.disabled = false;
+        statusMsg.innerText = t.errorMsg;
+        statusMsg.className = 'status-msg error';
+      });
+    });
+  </script>
+</body>
+</html>
