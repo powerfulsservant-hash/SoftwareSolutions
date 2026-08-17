@@ -190,6 +190,9 @@
     .tag { display: inline-block; background: #eff6ff; color: #1d4ed8; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; padding: 0.35rem 0.75rem; border-radius: 4px; margin-bottom: 1rem; }
     .description { color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.5rem; }
 
+    .pricing-box { background: #f1f5f9; padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-weight: 600; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+    .pricing-box span { color: var(--accent); font-size: 1.1rem; }
+
     .form-group { margin-bottom: 1.25rem; }
     .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--primary); }
     .form-group input, .form-group select, .form-group textarea { 
@@ -279,6 +282,7 @@
   <main>
     <div class="product-container">
       
+      <!-- Gallery Section (3 Images Setup: Thumbnail + 2 gallery slots) -->
       <div class="gallery-section">
         <div class="gallery-container">
           <img id="main-preview" class="preview-img" src="" alt="Software Preview" onclick="openLightbox()">
@@ -293,14 +297,21 @@
         <h2 id="product-title">Loading Software...</h2>
         <p class="description" id="product-desc"></p>
 
+        <!-- Pricing Display Box -->
+        <div class="pricing-box" id="pricing-box">
+          <span id="price-label">Price:</span>
+          <span id="price-value">12,000 DA</span>
+        </div>
+
         <form id="custom-order-form" novalidate>
           <input type="hidden" id="selected-software" name="Software">
+          <input type="hidden" id="selected-price" name="TotalPrice">
 
           <div class="form-group">
             <label id="label-qty">Number of Copies / Licenses</label>
             <div class="quantity-control">
               <button type="button" class="qty-btn" onclick="adjustQty(-1)">-</button>
-              <input type="number" id="quantity" name="Quantity" class="qty-input" value="1" min="1" max="10" readonly>
+              <input type="number" id="quantity" name="Quantity" class="qty-input" value="1" min="1" max="10" readonly onchange="updatePricing()">
               <button type="button" class="qty-btn" onclick="adjustQty(1)">+</button>
             </div>
           </div>
@@ -421,6 +432,7 @@
       en: {
         headerTitle: "Technical Software Solutions",
         backBtn: "← Back to Catalog",
+        priceLabel: "Total Price:",
         labelQty: "Number of Copies / Licenses",
         labelFullname: "Full Name / Lab Name",
         placeholderFullname: "e.g. John Doe / Apex Dental Lab",
@@ -439,6 +451,7 @@
       fr: {
         headerTitle: "Solutions Logicielles Techniques",
         backBtn: "← Retour au catalogue",
+        priceLabel: "Prix total :",
         labelQty: "Nombre de copies / Licences",
         labelFullname: "Nom complet / Nom du laboratoire",
         placeholderFullname: "ex. Jean Dupont / Labo Dentaire Apex",
@@ -457,6 +470,7 @@
       ar: {
         headerTitle: "حلول البرمجيات التقنية",
         backBtn: "الرجوع إلى الكتالوج ←",
+        priceLabel: ":السعر الإجمالي",
         labelQty: "عدد النسخ / التراخيص",
         labelFullname: "الاسم الكامل / اسم المختبر",
         placeholderFullname: "مثال: أحمد محمد / مخبر الأمل للأسنان",
@@ -482,66 +496,117 @@
 
     const products = [
       {
-        id: "exocad33",
-        title: "exocad 3.3 DentalCAD",
+        id: "exocad-partialcad-combo",
+        title: "exocad 3.3 + PartialCAD 3.3",
         tag: "Dental CAD",
+        hasCustomPricing: true,
+        singlePrice: 12000,
+        multiPrice: 10000,
         images: [
-          "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1200&q=80",
-          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1200&q=80"
+          "https://i.ibb.co/MDRgPQGC/together.jpg", 
+          "https://i.ibb.co/YF3MvJGS/exocad-Dental-CAD-3-3-Chemnitz-3-Furthers-03.gif", 
+          "https://i.ibb.co/Dfdbq4Yd/1000px-DB-3-1-SR-6.webp"  
         ],
         description: {
-          en: "Full suite installation with custom dental library integration and remote backup configuration.",
-          fr: "Installation complète de la suite avec intégration de bibliothèques dentaires et sauvegarde à distance.",
-          ar: "تثبيت البرنامج الكامل مع دمج مكتبات الأسنان المخصصة وإعداد النسخ الاحتياطي عن بُعد."
+          en: "Complete bundle featuring exocad 3.3 DentalCAD and PartialCAD 3.3. Price: 12,000 DA for 1 copy, or 10,000 DA per copy for 2+ copies.",
+          fr: "Pack complet comprenant exocad 3.3 DentalCAD et PartialCAD 3.3. Prix : 12 000 DA pour 1 copie, ou 10 000 DA par copie pour 2+ copies.",
+          ar: "حزمة كاملة تضم exocad 3.3 DentalCAD و PartialCAD 3.3. السعر: 12,000 دج للنسخة الواحدة، أو 10,000 دج للنسخة عند طلب نسختين أو أكثر."
         }
       },
       {
-        id: "partialcad33",
-        title: "PartialCAD 3.3",
-        tag: "Dental CAD",
-        images: [
-          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1200&q=80",
-          "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80"
-        ],
-        description: {
-          en: "Partial framework design module setup with full system and driver verification.",
-          fr: "Configuration du module de conception de châssis partiels avec vérification du système.",
-          ar: "إعداد وحدة تصميم الهياكل الجزئية مع التحقق الكامل من النظام وبرامج التشغيل."
-        }
-      },
-      {
-        id: "realguide",
-        title: "RealGUIDE Suite",
+        id: "realguide542",
+        title: "RealGuide 5.4.2",
         tag: "Implantology",
+        hasCustomPricing: true,
+        singlePrice: 12000,
+        multiPrice: 10000,
         images: [
-          "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80",
-          "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1200&q=80"
+          "https://i.ibb.co/Cp5xCSzr/Real-Guide.jpg",
+          "https://i.ibb.co/dsFMgHDv/REALGUIDE-EXPERTO.jpg",
+          "https://i.ibb.co/ch280Vgx/Guided-Smile-plugin-1024x563.jpg"
         ],
         description: {
-          en: "Surgical guide planning software setup including DICOM module support.",
-          fr: "Configuration du logiciel de planification de guides chirurgicaux avec support DICOM.",
-          ar: "إعداد برنامج تخطيط الأدلة الجراحية مع دعم وحدة DICOM."
+          en: "RealGuide 5.4.2 surgical guide planning software. Price: 12,000 DA for 1 copy, or 10,000 DA for two copies.",
+          fr: "Logiciel de planification de guides chirurgicaux RealGuide 5.4.2. Prix : 12 000 DA pour 1 copie, 10 000 DA pour deux copies.",
+          ar: "برنامج تخطيط الأدلة الجراحية RealGuide 5.4.2. السعر: 12,000 دج نسخة واحدة، 10,000 دج لنسختين."
         }
       },
       {
-        id: "kitchendraw",
-        title: "KitchenDraw v8 & v10",
-        tag: "Interior Design",
+        id: "Blender",
+        title: "Blender For Dental 4.0.1",
+        tag: "Dental CAD",
+        hasCustomPricing: true,
+        singlePrice: 9000,
+        multiPrice: 7500,
         images: [
-          "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80",
-          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+          "https://i.ibb.co/NgJQD28j/B4D.jpg",
+          "https://i.ibb.co/ynpYMHZY/8e4fff-99c850f87fe342b08cf2f0d89934796d-mv2.png",
+          "https://i.ibb.co/vCwwNPbN/Blender-for-dental.webp"
         ],
         description: {
-          en: "Complete catalog installation, space.ini tuning, and high-quality 3D rendering setup.",
-          fr: "Installation complète des catalogues, réglage de space.ini et rendu 3D haute qualité.",
-          ar: "تثبيت الكتالوجات الكاملة، ضبط ملف space.ini، وإعداد العرض ثلاثي الأبعاد عالي الجودة."
+          en: "Blender For Dental 3D design software. Price: 9,000 DA for 1 copy, or 7,500 DA for two copies.",
+          fr: "Logiciel de conception 3D Blender For Dental. Prix : 9 000 DA pour 1 copie, ou 7 500 DA pour deux copies.",
+          ar: "برنامج التصميم الثلاثي الأبعاد Blender For Dental. السعر: 9000 دج للنسخة الواحدة، أو 7500 دج للنسختين."
+       }
+      },
+      {
+        id: "geo5-2024-fr",
+        title: "GEO5 2024 (Français)",
+        tag: "Geotechnical Engineering",
+        hasCustomPricing: true,
+        singlePrice: 8000,
+        multiPrice: 7000,
+        images: [
+          "https://i.ibb.co/PsYmNk6t/Screenshot-2026-07-17-180019.png",
+          "https://i.ibb.co/Df1Z9jx0/Screenshot-2026-07-17-180054.png",
+          "https://i.ibb.co/Z1mhCgLS/Screenshot-2026-07-17-180137.png"
+        ],
+        description: {
+          en: "GEO5 2024 geotechnical software (French version). Price: 8,000 DA for 1 copy, or 7,000 DA per copy for two copies.",
+          fr: "Logiciel géotechnique GEO5 2024 (Version française). Prix : 8 000 DA pour 1 copie, ou 7 000 DA par copie pour deux copies.",
+          ar: "برنامج الجيوتقنية GEO5 2024 (النسخة الفرنسية). السعر: 8000 دج للنسخة الواحدة، أو 7000 دج للنسخة عند طلب نسختين."
+        }
+      },
+      {
+        id: "kitchendraw-v8-v10",
+        title: "KitchenDraw v8 & v10 Bundle",
+        tag: "Interior Design",
+        hasCustomPricing: true,
+        singlePrice: 8000,
+        multiPrice: 7000,
+        images: [
+          "https://i.ibb.co/NgkVG817/Screenshot-2026-08-17-154134.png",
+          "https://i.ibb.co/v4ZHgdTG/Screenshot-2026-08-17-154022.png"
+        ],
+        description: {
+          en: "KitchenDraw v8 and v10 bundle for interior design. Price: 8,000 DA for 1 copy, or 7,000 DA per copy for two copies.",
+          fr: "Pack KitchenDraw v8 et v10 pour l'aménagement intérieur. Prix : 8 000 DA pour 1 copie, ou 7 000 DA par copie pour deux copies.",
+          ar: "حزمة KitchenDraw v8 و v10 للتصميم الداخلي. السعر: 8000 دج للنسخة الواحدة، أو 7000 دج للنسخة عند طلب نسختين."
+        }
+      },
+      {
+        id: "elec-calc-2026",
+        title: "Elec Calc 2026.0.483.1",
+        tag: "Electrical Engineering",
+        hasCustomPricing: true,
+        singlePrice: 8000,
+        multiPrice: 7000,
+        images: [
+          "https://i.ibb.co/N2fHHtVZ/Screenshot-2026-08-17-155400.png",
+          "https://i.ibb.co/dwrV7VRG/Screenshot-2026-08-17-155429.png",
+          "https://i.ibb.co/HZyJJXy/Screenshot-2026-08-17-155513.png"
+        ],
+        description: {
+          en: "Elec Calc 2026.0.483.1 electrical installation calculation software. Price: 8,000 DA for 1 copy, or 7,000 DA per copy for two copies.",
+          fr: "Logiciel de calcul d'installations électriques Elec Calc 2026.0.483.1. Prix : 8 000 DA pour 1 copie, ou 7 000 DA par copie pour deux copies.",
+          ar: "برنامج حساب التجهيزات الكهربائية Elec Calc 2026.0.483.1. السعر: 8000 دج للنسخة الواحدة، أو 7000 دج للنسخة عند طلب نسختين."
         }
       }
     ];
 
     let currentLang = localStorage.getItem('appLang') || 'en';
     const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id') || 'exocad33';
+    const productId = urlParams.get('id') || 'exocad-partialcad-combo';
     const product = products.find(p => p.id === productId) || products[0];
 
     let currentProductImages = product.images;
@@ -582,6 +647,7 @@
       // UI Translations
       document.getElementById('header-title').innerText = t.headerTitle;
       document.getElementById('back-btn').innerText = t.backBtn;
+      document.getElementById('price-label').innerText = t.priceLabel;
       document.getElementById('label-qty').innerText = t.labelQty;
       
       document.getElementById('label-fullname').innerText = t.labelFullname;
@@ -605,6 +671,30 @@
       document.getElementById('product-desc').innerText = product.description[lang] || product.description.en;
       document.getElementById('selected-software').value = product.title;
       document.title = `${product.title} - ${t.headerTitle}`;
+
+      updatePricing();
+    }
+
+    function updatePricing() {
+      const pricingBox = document.getElementById('pricing-box');
+      const priceValue = document.getElementById('price-value');
+      const priceHiddenInput = document.getElementById('selected-price');
+      
+      if (!product.hasCustomPricing) {
+        pricingBox.style.display = 'none';
+        if (priceHiddenInput) priceHiddenInput.value = 'N/A';
+        return;
+      }
+
+      pricingBox.style.display = 'flex';
+      const qty = parseInt(document.getElementById('quantity').value) || 1;
+      
+      let unitPrice = qty === 1 ? product.singlePrice : product.multiPrice;
+      let total = qty * unitPrice;
+      
+      const formattedTotal = `${total.toLocaleString()} DA (${qty}x ${unitPrice.toLocaleString()} DA)`;
+      priceValue.innerText = formattedTotal;
+      if (priceHiddenInput) priceHiddenInput.value = formattedTotal;
     }
 
     function updateGallery() {
@@ -650,7 +740,10 @@
     function adjustQty(amount) {
       const input = document.getElementById('quantity');
       let val = parseInt(input.value) + amount;
-      if (val >= 1 && val <= 10) input.value = val;
+      if (val >= 1 && val <= 10) {
+        input.value = val;
+        updatePricing();
+      }
     }
 
     // Initialize Page
